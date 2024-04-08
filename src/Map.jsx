@@ -14,7 +14,7 @@ const Map = () => {
 
   // state
   const [mapContext, setMapContext] = useState();
-  const [hidePolylines, setHidePolylines] = useState(false);
+  const [hidePolylines, setHidePolylines] = useState(true);
   const [hideMarker, setHideMarker] = useState(false);
   const [animateMarker, setAnimateMarker] = useState(true);
   const [animatePolyline, setAnimatePolyline] = useState(true);
@@ -23,8 +23,8 @@ const Map = () => {
   const createMarker = () => {
     instanceRef.current = L.moveMarker(
       [
-        [-8.793436, 115.215772],
-        [-8.789624, 115.210967]
+        [45.7941, 15.957642],
+        [45.797691, 16.034203]
       ],
       {
         animate: animatePolyline,
@@ -42,12 +42,12 @@ const Map = () => {
         speed: 0,
         followMarker: followMarker,
         rotateMarker: true,
-        rotateAngle: 210,
+        rotateAngle: 0,
         icon: L.divIcon({
           iconSize: [28, 28],
           className: "position-relative rotate--marker",
           html:
-            '<div><img style="width: 28px;" src="https://www.pngkit.com/png/full/54-544296_red-top-view-clip-art-at-clker-cartoon.png" /></div>'
+            '<div><img style="width: 28px;margin-top: 10px" src="https://www.pngkit.com/png/full/54-544296_red-top-view-clip-art-at-clker-cartoon.png" /></div>'
         })
       },
       {}
@@ -92,10 +92,10 @@ const Map = () => {
         }}
       >
         <div style={{ marginBottom: "8px" }}>
-          <Button onClick={createMarker}>add marker</Button>
+          <Button onClick={createMarker}>start</Button>
         </div>
 
-        <div style={{ marginBottom: "8px" }}>
+        {/* <div style={{ marginBottom: "8px" }}>
           <Button
             onClick={() =>
               handleMoreLine([-8.794207, 115.206045], {
@@ -181,12 +181,12 @@ const Map = () => {
           <Button onClick={() => instanceRef.current.stop()}>
             stop all animate
           </Button>
-        </div>
+        </div> */}
       </div>
 
       <MapContainer
         style={{ height: "100%", width: "100%" }}
-        center={[-8.793436, 115.215772]}
+        center={[45.79527,16.0063351]}
         zoom={14}
         scrollWheelZoom={true}
         whenReady={(event) => setMapContext(event.target)}
