@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-// import { LeafletTrackingMarker } from "react-leaflet-tracking-marker";
+// import { Polyline, Circle } from "react-leaflet";
 import { LeafletTrackingMarker } from "./LeafletTrackingMarker";
+
 import L from "leaflet";
 import { Popup } from "react-leaflet";
 import carIcon from "./carIcon.png";
@@ -13,17 +14,16 @@ const icon = L.icon({
 });
 
 export default function CarMarker({ data, speed }) {
-
-
   const { lattitude, longitude } = data;
-
   // rotationAngle
   const [prevPos, setPrevPos] = useState([lattitude, longitude]);
 
   useEffect(() => {
-    if (prevPos[1] !== longitude && prevPos[0] !== lattitude)
+    if (prevPos[1] !== longitude && prevPos[0] !== lattitude) {
       setPrevPos([lattitude, longitude]);
+    }
   }, [lattitude, longitude, prevPos]);
+
 
   return (
     <>
@@ -34,10 +34,27 @@ export default function CarMarker({ data, speed }) {
         position={[lattitude, longitude]}
         previousPosition={prevPos}
         duration={speed}
-        keepAtCenter={true}
+        keepAtCenter={true}// true
       >
         <Popup>{"Time: " + data.time.split(" ")[1]}</Popup>
       </LeafletTrackingMarker>
+      {/* <Polyline
+        positions={[
+          [prevPos[0], prevPos[1]],
+          [lattitude, longitude],
+        ]}
+        color="red"
+      />
+      <Circle
+        center={[prevPos[0], prevPos[1]]}
+        pathOptions={{ fillColor: "blue" }}
+        radius={10}
+      />
+      <Circle
+        center={[lattitude, longitude]}
+        pathOptions={{ fillColor: "red" }}
+        radius={10}
+      /> */}
     </>
   );
 }

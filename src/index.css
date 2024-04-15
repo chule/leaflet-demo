@@ -16,7 +16,7 @@ code {
   padding: 5px;
   font-weight: bold;
   cursor: pointer;
-  background-color:bisque;
+  background-color: bisque;
   margin: 0 2px;
   border-radius: 20%;
   border: 2px solid white;
@@ -29,4 +29,13 @@ code {
 .top-right {
   padding: 0 10px 10px 10px;
   background-color: aliceblue;
+}
+
+.car-info {
+  margin-top: 15px;
+}
+
+.title {
+  margin-top: 5px;
+  font-weight: bold;
 }

@@ -1,6 +1,7 @@
 import { createLayerComponent } from '@react-leaflet/core'
 import { BaseMarker } from './BaseMarker'
 
+
 const defaultPosition = [0, 0]
 const computeBearing = (previousPosition = defaultPosition, nexPosition) => {
   let bearing = Math.atan2(nexPosition[0] - previousPosition[0], nexPosition[1] - previousPosition[1])
@@ -11,12 +12,14 @@ const computeBearing = (previousPosition = defaultPosition, nexPosition) => {
 }
 
 const createMarker = ({ position, previousPosition, rotationAngle, ...options }, ctx) => {
+
   const bearingAngle = rotationAngle ?? computeBearing(previousPosition, position)
   const instance = new BaseMarker(position, { ...options, bearingAngle })
   return { instance, context: { ...ctx, overlayContainer: instance } }
 }
 
 const updateMarker = (marker, props, prevProps) => {
+
   const { position, previousPosition, duration, keepAtCenter, icon, zIndexOffset, opacity, draggable, rotationOrigin, rotationAngle } = props
   if (prevProps.position !== position && typeof duration == 'number') {
     marker.slideTo(position, {

@@ -1,16 +1,27 @@
-import { useEffect, useState } from "react";
-import { MapContainer, TileLayer, Polyline } from "react-leaflet";
+import { useEffect, useState, useRef } from "react";
+import { MapContainer, TileLayer, Polyline } from "react-leaflet"; //Polyline
 import CarMarker from "./CarMarker";
+import getDistance from "./helpers/getDistance";
+import mToKm from "./helpers/mToKm";
 import data from "./data.json";
+// import { PolylineWithArrowheads } from "./PolylineWithArrowheads";
 
 import "./styles.css";
 
-let cursor = 0;
+const speedData = ["1x", "2x", "4x", "8x", "16x"];
+
+// let cursor = 0;
 export default function App() {
   const [currentTrack, setCurrentTrack] = useState({});
   const [geoPointsList, setGeoPointsList] = useState(null);
   const [speed, setSpeed] = useState(1000);
   const [selectedSpeedControl, setSelectedSpeedControl] = useState("1x");
+  const [carSpeed, setCarSpeed] = useState(0);
+  const [totalDistance, setTotalDistance] = useState(0);
+  // const [arrowHeadData, setArrowHeadData] = useState(null);
+
+  let cursorRef = useRef(0);
+  let intervalRef = useRef(null);
 
   const geopoints = data.list;
 
@@ -19,32 +30,68 @@ export default function App() {
       return [d.lattitude, d.longitude];
     });
 
-    setCurrentTrack(geopoints[cursor]);
+    setCurrentTrack(geopoints[cursorRef.current]);
 
-    const interval = setInterval(() => {
-      if (cursor === geopoints.length - 1) {
-        cursor = 0;
-        setCurrentTrack(geopoints[cursor]);
+    intervalRef.current = setInterval(() => {
+      if (cursorRef.current === geopoints.length - 1) {
+        cursorRef.current = 0;
+        setCurrentTrack(geopoints[cursorRef.current]);
+        clearInterval(intervalRef.current);
         return;
       }
 
-      cursor += 1;
-      setGeoPointsList(temp.slice(0, cursor)); // set track
-      setCurrentTrack(geopoints[cursor]);
+      if (cursorRef.current === 0) {
+        setTotalDistance(0);
+      }
+
+      cursorRef.current += 1;
+
+      if (cursorRef.current > 1) {
+        // setArrowHeadData([
+        //   [
+        //     geopoints[cursorRef.current - 1].lattitude,
+        //     geopoints[cursorRef.current - 1].longitude,
+        //   ],
+        //   [
+        //     geopoints[cursorRef.current].lattitude,
+        //     geopoints[cursorRef.current].longitude,
+        //   ],
+        // ]);
+        setTotalDistance(
+          (oldDistance) =>
+            getDistance(
+              [
+                geopoints[cursorRef.current - 1].lattitude,
+                geopoints[cursorRef.current - 1].longitude,
+              ],
+              [
+                geopoints[cursorRef.current].lattitude,
+                geopoints[cursorRef.current].longitude,
+              ]
+            ) + oldDistance
+        );
+      }
+
+      setCarSpeed(geopoints[cursorRef.current].speed);
+      setGeoPointsList(temp.slice(0, cursorRef.current + 1)); // set track
+      setCurrentTrack(geopoints[cursorRef.current]);
     }, speed);
 
     return () => {
-      clearInterval(interval);
+      clearInterval(intervalRef.current);
     };
   }, [geopoints, speed]);
+
+  console.log(geoPointsList);
 
   return (
     <div>
       <MapContainer
         style={{ height: "100vh" }}
+        // center={[geopoints[0].lattitude, geopoints[0].longitude]}
         center={[geopoints[0].lattitude, geopoints[0].longitude]}
         zoom={17}
-        minZoom={5}
+        // minZoom={5}
       >
         <TileLayer
           attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
@@ -53,83 +100,70 @@ export default function App() {
         {geoPointsList ? (
           <>
             <Polyline positions={geoPointsList} color="red" />
+
             <CarMarker data={currentTrack ?? {}} speed={speed} />
           </>
         ) : null}
 
+        {/* <PolylineWithArrowheads
+          positions={[
+            [8.505722777777777, 76.89942222222221],
+            [8.505131666666667, 76.8999911111111],
+            [8.504499444444445, 76.90057777777778],
+            [8.503836666666666, 76.90119111111112],
+            [8.50320611111111, 76.9017688888889],
+          ]}
+          arrowheads
+        /> */}
+
         <div className="leaflet-top leaflet-right">
           <div className="leaflet-control leaflet-bar top-right">
-            <h4>SPEED CONTROLL</h4>
-            <span
-              // className={
-              //   `speed-control ` + selectedSpeedControl === "x1"
-              //     ? "speed-control-selected"
-              //     : null
-              // }
-              className={
-                selectedSpeedControl === "1x"
-                  ? "speed-control speed-control-selected"
-                  : "speed-control"
-              }
+            <div>
+              <h4>SPEED CONTROLL</h4>
+              {speedData.map((speed) => {
+                return (
+                  <span
+                    key={speed}
+                    className={
+                      selectedSpeedControl === speed
+                        ? "speed-control speed-control-selected"
+                        : "speed-control"
+                    }
+                    onClick={() => {
+                      setSpeed(1000 / +speed.split("x")[0]);
+                      setSelectedSpeedControl(speed);
+                    }}
+                  >
+                    {speed}
+                  </span>
+                );
+              })}
+            </div>
+
+            {/* <div
+              onClick={() => {
+                clearInterval(intervalRef.current);
+              }}
+            >
+              pause
+            </div>
+            <div
               onClick={() => {
                 setSpeed(1000);
-                setSelectedSpeedControl("1x");
               }}
             >
-              1x
-            </span>
-            <span
-              className={
-                selectedSpeedControl === "2x"
-                  ? "speed-control speed-control-selected"
-                  : "speed-control"
-              }
-              onClick={() => {
-                setSpeed(1000 / 2);
-                setSelectedSpeedControl("2x");
-              }}
-            >
-              2x
-            </span>
-            <span
-              className={
-                selectedSpeedControl === "4x"
-                  ? "speed-control speed-control-selected"
-                  : "speed-control"
-              }
-              onClick={() => {
-                setSpeed(1000 / 4);
-                setSelectedSpeedControl("4x");
-              }}
-            >
-              4x
-            </span>
-            <span
-              className={
-                selectedSpeedControl === "8x"
-                  ? "speed-control speed-control-selected"
-                  : "speed-control"
-              }
-              onClick={() => {
-                setSpeed(1000 / 8);
-                setSelectedSpeedControl("8x");
-              }}
-            >
-              8x
-            </span>
-            <span
-              className={
-                selectedSpeedControl === "16x"
-                  ? "speed-control speed-control-selected"
-                  : "speed-control"
-              }
-              onClick={() => {
-                setSpeed(1000 / 16);
-                setSelectedSpeedControl("16x");
-              }}
-            >
-              16x
-            </span>
+              start
+            </div> */}
+            <div className="car-info">
+              <div className="title">CAR SPEED</div>
+              <div>{carSpeed === 1 ? 0 : Math.round(carSpeed)} km/h</div>
+              <div className="title">TOTAL DISTANCE</div>
+              <div>{mToKm(totalDistance) + " km"}</div>
+              <div className="title">TIME</div>
+              <div>
+                {currentTrack.time ? currentTrack.time.split(" ")[1] : null}
+              </div>
+            </div>
           </div>
         </div>
       </MapContainer>
