@@ -38,4 +38,16 @@ code {
 .title {
   margin-top: 5px;
   font-weight: bold;
+  text-transform: uppercase;
+}
+
+.speed-control-wrap {
+  margin-top: 10px;
+}
+
+.play-pause-restart {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 10px 0;
 }
