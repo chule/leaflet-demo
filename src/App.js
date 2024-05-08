@@ -5,7 +5,6 @@ import getDistance from "./helpers/getDistance";
 import mToKm from "./helpers/mToKm";
 import timeDifference from "./helpers/timeDifference";
 import data from "./data.json";
-import { PolylineWithArrowheads } from "./PolylineWithArrowheads";
 
 import "./styles.css";
 
@@ -21,7 +20,6 @@ export default function App() {
   const [carSpeed, setCarSpeed] = useState(0);
   const [totalDistance, setTotalDistance] = useState(0);
   const [timeDifferenceValue, setTimeDifferenceValue] = useState("00:00:00");
-  // const [arrowHeadData, setArrowHeadData] = useState(null);
 
   let cursorRef = useRef(0);
   let intervalRef = useRef(null);
@@ -51,16 +49,6 @@ export default function App() {
         cursorRef.current += 1;
 
         if (cursorRef.current > 1) {
-          // setArrowHeadData([
-          //   [
-          //     geopoints[cursorRef.current - 1].lattitude,
-          //     geopoints[cursorRef.current - 1].longitude,
-          //   ],
-          //   [
-          //     geopoints[cursorRef.current].lattitude,
-          //     geopoints[cursorRef.current].longitude,
-          //   ],
-          // ]);
           setTotalDistance(
             (oldDistance) =>
               getDistance(
@@ -75,8 +63,6 @@ export default function App() {
               ) + oldDistance
           );
 
-      
-
           setTimeDifferenceValue(
             timeDifference(
               geopoints[0].time.split(" ")[1],
@@ -86,7 +72,7 @@ export default function App() {
         }
 
         setCarSpeed(geopoints[cursorRef.current].speed);
-        setGeoPointsList(temp.slice(0, cursorRef.current + 1)); // set track
+        setGeoPointsList(temp.slice(0, cursorRef.current)); // set track // +1
         setCurrentTrack(geopoints[cursorRef.current]);
       }, speed);
     }
@@ -109,24 +95,18 @@ export default function App() {
           attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
-        {geoPointsList ? (
+        {geoPointsList && geoPointsList.length >= 2 ? (
           <>
-            <Polyline positions={geoPointsList} color="red" />
-            {/* 
-        <PolylineWithArrowheads
-          positions={[
-            [8.505722777777777, 76.89942222222221],
-            [8.505131666666667, 76.8999911111111],
-            [8.504499444444445, 76.90057777777778],
-            [8.503836666666666, 76.90119111111112],
-            [8.50320611111111, 76.9017688888889],
-          ]}
-          arrowheads
-        />  */}
-            <CarMarker data={currentTrack ?? {}} speed={speed} />
+            <Polyline positions={geoPointsList.slice(0, -1)} color="red" />
+            <CarMarker
+              data={currentTrack ?? {}}
+              speed={speed}
+              isMoveing={isMoveing}
+              geoPointsList={geoPointsList}
+            />
           </>
         ) : null}
-
+        {/*  controlls */}
         <div className="leaflet-top leaflet-right">
           <div className="leaflet-control leaflet-bar top-right">
             <div className="play-pause-restart">
